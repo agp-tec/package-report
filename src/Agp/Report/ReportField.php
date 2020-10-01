@@ -4,6 +4,8 @@
 namespace Agp\Report;
 
 
+use Illuminate\Database\Eloquent\Model;
+
 class ReportField
 {
     public $column;
@@ -23,7 +25,11 @@ class ReportField
             $f = $this->callback;
             return $f($item);
         }
+        if ($item instanceof Model)
+            return $item->getAttribute($this->column->name);
         $aux = (array)$item;
-        return $aux[$this->column->name];
+        if (array_key_exists($this->column->name, $aux))
+            return $aux[$this->column->name];
+        return '???';
     }
 }
