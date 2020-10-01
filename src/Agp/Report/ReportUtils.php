@@ -17,7 +17,7 @@ class ReportUtils
         $data = [];
         foreach ($models as $model)
             foreach ($model->getFillable() as $item)
-                $data[] = $model->getTable() . '.' . $item;
+                $data[] = $model->getTable() . '.' . $item . ' as ' . $model->getTable() . '.' . $item;
         return $data;
     }
 }
