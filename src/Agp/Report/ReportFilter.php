@@ -56,8 +56,6 @@ class ReportFilter
                             </div>
                             <input type="text" class="form-control" name="query[' . $this->column->name . '][end]" value="' . ($inputValue ? $inputValue['end'] : '') . '">
                         </div>';
-//                    return '<input class="form-control" type="text" name="' . $inputName . '[start]" value="' . ($inputValue ? $inputValue['start'] : '') . '">' .
-//                        '<input class="form-control" type="text" name="query[' . $this->column->name . '][end]" value="' . ($inputValue ? $inputValue['end'] : '') . '">';
                 }
                 return '<input class="form-control" type="text" name="' . $inputName . '" value="' . request()->input('query.' . $this->column->name) . '">';
             default:

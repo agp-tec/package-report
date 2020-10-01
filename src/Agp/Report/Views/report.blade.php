@@ -11,7 +11,7 @@
             @endforeach
         </div>
         <div class="form-row">
-            <div class="col-md-1">
+            <div class="col-md-2 mr-2">
                 <button class="btn btn-primary font-weight-bolder font-size-sm" type="submit">Filtrar</button>
             </div>
     </form>
