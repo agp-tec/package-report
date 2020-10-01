@@ -70,7 +70,7 @@ class Report implements FromCollection
      * @param Builder|null $builder
      * @param bool $export Indica se query deve ser paginada para web ou sem paginacao para export
      */
-    private function executaQuery($builder = null, $export = false)
+    protected function executaQuery($builder = null, $export = false)
     {
         $query = $this->queryBuilder;
         $builder = $query();
@@ -210,7 +210,7 @@ class Report implements FromCollection
     /**
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-    private function view()
+    protected function view()
     {
         $report = $this;
         return view($this->view, compact('report'));
