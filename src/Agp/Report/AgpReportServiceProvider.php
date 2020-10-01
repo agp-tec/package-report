@@ -14,7 +14,9 @@ class AgpReportServiceProvider extends ServiceProvider
                 MakeCommand::class,
             ]);
         }
-//        $this->loadRoutesFrom(__DIR__ . '/Routes/web.php');
+        $this->publishes([
+            __DIR__ . '/config/report.php' => config_path('report.php'),
+        ], 'config');
     }
 
     public function register()

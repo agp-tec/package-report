@@ -38,12 +38,19 @@ class Report implements FromCollection
      * @var Closure
      */
     protected $queryBuilder;
+    /** Nome do arquivo blade
+     * @var string
+     */
+    private $view;
 
     /**
      * Report constructor.
      */
     public function __construct()
     {
+        $this->view = config('report.view');
+        if (!$this->view)
+            $this->view = 'Report::report';
         $this->columns = new Collection();
         $this->fields = new Collection();
 
@@ -206,7 +213,7 @@ class Report implements FromCollection
     private function view()
     {
         $report = $this;
-        return view('Report::report', compact('report'));
+        return view($this->view, compact('report'));
     }
 
     /** Retorna os links do paginator
