@@ -117,7 +117,7 @@ class Report implements FromCollection
         if ($export)
             $this->items = $builder->get();
         else
-            $this->items = $builder->paginate(4)->appends($this->httpParams);
+            $this->items = $builder->paginate(10)->appends($this->httpParams);
         return $this->items;
     }
 
