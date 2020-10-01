@@ -47,8 +47,17 @@ class ReportFilter
             case 'datetime':
                 $inputValue = request()->input('query.' . $this->column->name);
                 if ($this->metodo == 'between') {
-                    return '<input class="form-control" type="text" name="' . $inputName . '[start]" value="' . ($inputValue ? $inputValue['start'] : '') . '">' .
-                        '<input class="form-control" type="text" name="query[' . $this->column->name . '][end]" value="' . ($inputValue ? $inputValue['end'] : '') . '">';
+                    return '<div class="input-daterange input-group datepicker">
+                            <input type="text" class="form-control" name="' . $inputName . '[start]" value="' . ($inputValue ? $inputValue['start'] : '') . '">
+                            <div class="input-group-append">
+                                <span class="input-group-text">
+                                    <i class="la la-ellipsis-h"></i>
+                                </span>
+                            </div>
+                            <input type="text" class="form-control" name="query[' . $this->column->name . '][end]" value="' . ($inputValue ? $inputValue['end'] : '') . '">
+                        </div>';
+//                    return '<input class="form-control" type="text" name="' . $inputName . '[start]" value="' . ($inputValue ? $inputValue['start'] : '') . '">' .
+//                        '<input class="form-control" type="text" name="query[' . $this->column->name . '][end]" value="' . ($inputValue ? $inputValue['end'] : '') . '">';
                 }
                 return '<input class="form-control" type="text" name="' . $inputName . '" value="' . request()->input('query.' . $this->column->name) . '">';
             default:

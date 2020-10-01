@@ -9,19 +9,19 @@
                     </div>
                 @endif
             @endforeach
-            <div class="col-md-3">
-                <button class="form-control" type="submit">Filter</button>
+        </div>
+        <div class="form-row">
+            <div class="col-md-1">
+                <button class="btn btn-primary font-weight-bolder font-size-sm" type="submit">Filtrar</button>
             </div>
-        </div>
     </form>
-    <form method="get">
-        <div class="col-md-3">
-            <label>Download
-                <input class="form-control" type="hidden" name="export" value="1">
-                <button class="form-control" type="submit">Download</button>
-            </label>
-        </div>
-    </form>
+    <div class="col-md-1">
+        <form method="get">
+            <input class="form-control" type="hidden" name="export" value="1">
+            <button class="btn btn-success font-weight-bolder font-size-sm" type="submit">Download</button>
+        </form>
+    </div>
+</div>
 </div>
 
 <table class='table table-head-custom table-head-bg table-borderless table-vertical-center'>
