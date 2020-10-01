@@ -22,7 +22,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "AgpReportServiceProvider"
+                "Agp\\Report\\AgpReportServiceProvider"
             ]
         }
     }
