@@ -22,7 +22,8 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Agp\\Report\\AgpReportServiceProvider"
+                "Agp\\Report\\AgpReportServiceProvider",
+                "Maatwebsite\\Excel\\ExcelServiceProvider"
             ]
         }
     }

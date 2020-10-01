@@ -1,6 +1,7 @@
 <div class="d-flex mt-5">
     <form method="get">
-        <div class="form-row">    @foreach($report->columns as $column)
+        <div class="form-row">
+            @foreach($report->columns as $column)
                 @if($column->filter->tipo != '')
                     <div class="col-md-3">
                         {!! $column->title !!}
@@ -9,20 +10,23 @@
                 @endif
             @endforeach
             <div class="col-md-3">
-                <label>Download
-                    <input class="form-control" type="checkbox" name="export">
-                </label>
-            </div>
-            <div class="col-md-3">
                 <button class="form-control" type="submit">Filter</button>
             </div>
         </div>
     </form>
+    <form method="get">
+        <div class="col-md-3">
+            <label>Download
+                <input class="form-control" type="hidden" name="export" value="1">
+                <button class="form-control" type="submit">Download</button>
+            </label>
+        </div>
+    </form>
 </div>
 
-<table class='table table-bordered'>
+<table class='table table-head-custom table-head-bg table-borderless table-vertical-center'>
     <thead>
-    <tr>
+    <tr class="text-left text-uppercase">
         @foreach($report->columns as $column)
             <th
             @foreach($column->attr as $attr => $value)
