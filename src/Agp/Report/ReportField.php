@@ -23,6 +23,7 @@ class ReportField
             $f = $this->callback;
             return $f($item);
         }
-        return $item->{$this->column->name};
+        $aux = (array)$item;
+        return $aux[$this->column->name];
     }
 }

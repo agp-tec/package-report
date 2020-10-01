@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Facades\Excel;
@@ -42,6 +43,10 @@ class Report implements FromCollection
      * @var string
      */
     private $view;
+    /** Nome do arquivo para download
+     * @var string
+     */
+    private $filename;
 
     /**
      * Report constructor.
@@ -88,15 +93,15 @@ class Report implements FromCollection
                         case '>=':
                         case '!=':
                         case '<>':
-                            $builder = $builder->where($key, $column->filter->metodo, $value);
+                        $builder = $builder->where(DB::raw($key), $column->filter->metodo, $value);
                             break;
                         case 'like':
-                            $builder = $builder->where($key, 'LIKE', '%' . $value . '%');
+                            $builder = $builder->where(DB::raw($key), 'LIKE', '%' . $value . '%');
                             break;
                         case 'between':
                             if (array_key_exists('start', $value) && array_key_exists('end', $value) &&
                                 $value['start'] && $value['end'])
-                                $builder = $builder->whereBetween($key, $value);
+                                $builder = $builder->whereBetween(DB::raw($key), $value);
                             else
                                 unset($query[$key]);
                             break;
@@ -237,6 +242,7 @@ class Report implements FromCollection
      */
     public function export()
     {
-        return Excel::download($this, 'users.xlsx');
+        $file = $this->filename ? $this->filename : ('Report_' . date_create()->format('d-m-y_h:i:s') . '.xlsx');
+        return Excel::download($this, $file);
     }
 }
