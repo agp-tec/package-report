@@ -3,6 +3,8 @@
 
 namespace Agp\Report;
 
+use Illuminate\Database\Eloquent\Model;
+
 /**
  * Class ReportTotalizador
  * Contem as colunas para realizar o totalizador
@@ -25,13 +27,13 @@ class ReportTotalizador
 
     /**
      * ReportTotalizador constructor.
-     * @param string $metodo Metodo de totalização = 'count','sum','avg'
-     * @param float|int $valor
+     * @param ReportColumn $column
      */
-    public function __construct($metodo, $valor = 0)
+    public function __construct($column)
     {
-        $this->metodo = $metodo;
-        $this->valor = $valor;
+        $this->column = $column;
+        $this->metodo = '';
+        $this->valor = 0;
         $this->count = 0;
     }
 
@@ -54,10 +56,10 @@ class ReportTotalizador
         $this->count = 0;
     }
 
-    /**
-     * @param float|int $value
+    /** Realiza totalização do item
+     * @param $item
      */
-    public function append($value)
+    public function append($item)
     {
         $this->count++;
         switch ($this->metodo) {
@@ -66,9 +68,14 @@ class ReportTotalizador
                 break;
             case 'avg':
             case 'sum':
-                $this->valor += $value;
-                break;
+                if ($item instanceof Model)
+                    $this->valor += $item->getAttribute($this->column->name);
+                else {
+                    $aux = (array)$item;
+                    if (array_key_exists($this->column->name, $aux))
+                        $this->valor += $aux[$this->column->name];
+                    break;
+                }
         }
     }
-
 }

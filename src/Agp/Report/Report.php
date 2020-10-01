@@ -10,22 +10,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
-use Maatwebsite\Excel\Concerns\Exportable;
-use Maatwebsite\Excel\Concerns\FromCollection;
-use Maatwebsite\Excel\Facades\Excel;
 
-class Report implements FromCollection
+class Report
 {
-    use Exportable;
 
     /** Colunas do relatório
      * @var Collection
      */
     public $columns;
-    /** Campos do relatório
-     * @var Collection
-     */
-    public $fields;
     /** Resultado da query
      * @var LengthAwarePaginator
      */
@@ -36,17 +28,17 @@ class Report implements FromCollection
     public $httpParams;
     /** Metodo que executa o select
      * @return Builder
-     * @var Closure
+     * @var Closure|Builder
      */
     protected $queryBuilder;
     /** Nome do arquivo blade
      * @var string
      */
     private $view;
-    /** Nome do arquivo para download
-     * @var string
+    /**
+     * @var ReportExport
      */
-    private $filename;
+    private $reportExport;
 
     /**
      * Report constructor.
@@ -57,75 +49,45 @@ class Report implements FromCollection
         if (!$this->view)
             $this->view = 'Report::report';
         $this->columns = new Collection();
-        $this->fields = new Collection();
-
+        $this->reportExport = new ReportExport($this);
         $this->queryBuilder = null;
     }
 
-    /**
-     * @return LengthAwarePaginator|\Illuminate\Support\Collection
+    /** Adiciona uma coluna
+     * @param ReportColumn|string $data
+     * @return ReportColumn
      */
-    public function collection()
+    public function addColumn($data)
     {
-        $this->executaQuery(null, true);
-        return $this->items;
+        if ($data instanceof ReportColumn) {
+            $this->columns->add($data);
+            return $data;
+        }
+        if (is_string($data)) {
+            $column = new ReportColumn($data);
+            $this->columns->add($column);
+            return $column;
+        }
+        throw new \Exception('Invalid type');
     }
 
     /** Executa query do relatorio
      * @param Builder|null $builder
      * @param bool $export Indica se query deve ser paginada para web ou sem paginacao para export
      */
-    protected function executaQuery($builder = null, $export = false)
+    public function executaQuery($builder = null, $export = false)
     {
         $query = $this->queryBuilder;
         $builder = $query();
-
-        $query = request()->get('query');
-        if ($query) {
-            foreach ($query as $key => $value) {
-                if ($value) {
-                    $column = $this->getColumnByName($key);
-                    switch ($column->filter->metodo) {
-                        case '=':
-                        case '>':
-                        case '<':
-                        case '<=':
-                        case '>=':
-                        case '!=':
-                        case '<>':
-                        $builder = $builder->where(DB::raw($key), $column->filter->metodo, $value);
-                            break;
-                        case 'like':
-                            $builder = $builder->where(DB::raw($key), 'LIKE', '%' . $value . '%');
-                            break;
-                        case 'between':
-                            if (array_key_exists('start', $value) && array_key_exists('end', $value) &&
-                                $value['start'] && $value['end'])
-                                $builder = $builder->whereBetween(DB::raw($key), $value);
-                            else
-                                unset($query[$key]);
-                            break;
-                    }
-                } else
-                    unset($query[$key]);
-            }
-        }
-
-        $order = request()->get('order');
-        if ($order) {
-            foreach ($order as $key => $value) {
-                if ($value) {
-                    $column = $this->getColumnByName($key);
-                    $column->filter->order = $value;
-                    $builder = $builder->orderBy($key, $value);
-                } else
-                    unset($order[$key]);
-            }
-        }
-        $this->httpParams = [
-            'order' => $order,
-            'query' => $query,
-        ];
+        if (request()->get('clear'))
+            request()->merge([
+                'clear' => null,
+                'query' => null,
+                'order' => null,
+            ]);
+        $builder = $this->montaSelects($builder);
+        $builder = $this->montaWhere($builder);
+        $builder = $this->montaOrder($builder);
         if ($export)
             $this->items = $builder->get();
         else
@@ -145,38 +107,21 @@ class Report implements FromCollection
         throw new \Exception('Unknow column ' . $name);
     }
 
-    /** Retorna o campo identificada pelo nome
-     * @param $name
-     * @return ReportField|null
-     */
-    public function getFieldByName($name)
-    {
-        foreach ($this->fields as $item)
-            if ($item->column->name == $name)
-                return $item;
-        throw new \Exception('Unknow field ' . $name);
-    }
-
     /** Cria colunas com base no atributo fillables da entidade
-     * @param Model $model Entidade
+     * @param Model|array $model Entidade
      */
     public function setModel($model)
     {
         if ($model instanceof Model) {
             foreach ($model->getFillable() as $item) {
-                $column = new ReportColumn([
+                $this->columns->add(new ReportColumn([
                     'name' => $model->getTable() . '.' . $item,
                     'title' => ucwords(str_replace('_', ' ', strtolower($item))),
-                    'headerClass' => '',
-                    'rowClass' => '',
-                ]);
-                $this->columns->add($column);
-                $this->fields->add(new ReportField($column, [
-                    'attr' => [
-                        'calss' => '',
-                    ],
-                    'callback' => null
                 ]));
+            }
+        } elseif (is_array($model)) {
+            foreach ($model as $item) {
+                $this->setModel($item);
             }
         }
     }
@@ -196,8 +141,7 @@ class Report implements FromCollection
 
         foreach ($this->items as $item)
             foreach ($this->columns as $column)
-                if ($column->totalizador)
-                    $column->totalizador->append($item->{$column->name});
+                $column->totalizador->append($item);
 
         return $this->view();
     }
@@ -242,7 +186,81 @@ class Report implements FromCollection
      */
     public function export()
     {
-        $file = $this->filename ? $this->filename : ('Report_' . date_create()->format('d-m-y_h:i:s') . '.xlsx');
-        return Excel::download($this, $file);
+        return $this->reportExport->doExport();
+    }
+
+    /**
+     * @param Builder $builder
+     * @return Builder
+     * @throws \Exception
+     */
+    private function montaWhere($builder)
+    {
+        $query = request()->get('query');
+        if ($query) {
+            foreach ($query as $key => $value) {
+                if ($value) {
+                    $column = $this->getColumnByName($key);
+                    switch ($column->filter->metodo) {
+                        case '=':
+                        case '>':
+                        case '<':
+                        case '<=':
+                        case '>=':
+                        case '!=':
+                        case '<>':
+                            $builder = $builder->where(DB::raw($key), $column->filter->metodo, $value);
+                            break;
+                        case 'like':
+                            $builder = $builder->where(DB::raw($key), 'LIKE', '%' . $value . '%');
+                            break;
+                        case 'between':
+                            if (array_key_exists('start', $value) && array_key_exists('end', $value) &&
+                                $value['start'] && $value['end'])
+                                $builder = $builder->whereBetween(DB::raw($key), $value);
+                            else
+                                unset($query[$key]);
+                            break;
+                    }
+                } else
+                    unset($query[$key]);
+            }
+            $this->httpParams['query'] = $query;
+        }
+        return $builder;
+    }
+
+    /**
+     * @param Builder $builder
+     * @return Builder
+     */
+    private function montaSelects($builder)
+    {
+        $selects = array();
+        foreach ($this->columns as $column)
+            $selects[] = $column->name . ' as ' . $column->name;
+        return $builder->select($selects);
+    }
+
+    /**
+     * @param Builder $builder
+     * @return Builder
+     * @throws \Exception
+     */
+    private function montaOrder($builder)
+    {
+        $order = request()->get('order');
+        if ($order) {
+            foreach ($order as $key => $value) {
+                if ($value) {
+                    $column = $this->getColumnByName($key);
+                    $column->filter->order = $value;
+                    $builder = $builder->orderBy($key, $value);
+                } else
+                    unset($order[$key]);
+            }
+            $this->httpParams['order'] = $order;
+        }
+        return $builder;
     }
 }

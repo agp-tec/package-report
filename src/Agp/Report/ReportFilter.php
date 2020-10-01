@@ -64,8 +64,8 @@ class ReportFilter
     }
 
     /**
-     * @param string $tipo
-     * @param string $metodo
+     * @param string $tipo Tipo de dado (int, string, datetime, etc)
+     * @param string $metodo Metodo de filtro (=,>=,<=,like,between, etc)
      */
     public function set(string $tipo, string $metodo)
     {

@@ -18,32 +18,50 @@ class ReportColumn
      * @var ReportFilter
      */
     public $filter;
-    /** Titulo da coluna
-     * @var
+    /** Dados para filtro da coluna
+     * @var ReportHeader
      */
-    public $title;
-    /** Descrição da coluna
-     * @var
-     */
-    public $desc;
-    /** Atributos html da coluna header
-     * @var array
-     */
-    public $attr = [];
+    public $header;
     /** Indica o calculo de total da coluna
      * @var ReportTotalizador
      */
     public $totalizador = null;
+    /** Indica o calculo de total da coluna
+     * @var ReportField
+     */
+    public $field;
 
     /**
      * ReportColumn constructor. $data contém os atributos do objeto como name, title, desc, attr
-     * @param $data
+     * @param string $name
      */
-    public function __construct($data)
+    public function __construct($name = null)
     {
+        $this->header = new ReportHeader($this);
         $this->filter = new ReportFilter($this);
-        if (is_array($data))
-            foreach ($data as $key => $value)
-                $this->$key = $value;
+        $this->totalizador = new ReportTotalizador($this);
+        $this->field = new ReportField($this);
+        $this->name = $name;
+    }
+
+    /**
+     * @param string $title Titulo da coluna
+     * @return ReportColumn
+     */
+    public function setTitle($title)
+    {
+        $this->header->title = $title;
+        return $this;
+    }
+
+    /**
+     * @param string $tipo Tipo de dado (int, string, datetime, etc)
+     * @param string $metodo Metodo de filtro (=,>=,<=,like,between, etc)
+     * @return ReportColumn
+     */
+    public function setFilter($tipo, $metodo)
+    {
+        $this->filter->set($tipo, $metodo);
+        return $this;
     }
 }
