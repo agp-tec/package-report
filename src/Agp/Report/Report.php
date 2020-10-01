@@ -142,7 +142,7 @@ class Report implements FromCollection
         foreach ($this->columns as $item)
             if ($item->name == $name)
                 return $item;
-        return null;
+        throw new \Exception('Unknow column ' . $name);
     }
 
     /** Retorna o campo identificada pelo nome
@@ -154,7 +154,7 @@ class Report implements FromCollection
         foreach ($this->fields as $item)
             if ($item->column->name == $name)
                 return $item;
-        return null;
+        throw new \Exception('Unknow field ' . $name);
     }
 
     /** Cria colunas com base no atributo fillables da entidade
@@ -165,7 +165,7 @@ class Report implements FromCollection
         if ($model instanceof Model) {
             foreach ($model->getFillable() as $item) {
                 $column = new ReportColumn([
-                    'name' => $item,
+                    'name' => $model->getTable() . '.' . $item,
                     'title' => ucwords(str_replace('_', ' ', strtolower($item))),
                     'headerClass' => '',
                     'rowClass' => '',
