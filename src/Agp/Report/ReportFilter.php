@@ -10,8 +10,8 @@ class ReportFilter
      * @var string
      */
     public $tipo;
-    /** Metodo de filtro (=, between, like)
-     * @var string
+    /** Metodo de filtro (=, between, like) ou options do select para choice
+     * @var string|array
      */
     public $metodo;
     /** Direção do orderby atual
@@ -22,6 +22,10 @@ class ReportFilter
      * @var ReportColumn
      */
     private $column;
+    /** Atributos html do input de filtro
+     * @var string[]
+     */
+    private $attrs;
 
     /**
      * ReportFilter constructor.
@@ -32,50 +36,80 @@ class ReportFilter
         $this->column = $column;
     }
 
-    /** Renderiza input
+    /** Renderiza input de filtro
      * @return string
      */
     public function renderInput()
     {
         $inputName = 'query[' . $this->column->name . ']';
+        $inputValues = request()->input();
+        $inputValue = null;
+        if ($inputValues && array_key_exists('query', $inputValues) && is_array($inputValues['query']) && array_key_exists($this->column->name, $inputValues['query']))
+            $inputValue = $inputValues['query'][$this->column->name];
         switch ($this->tipo) {
             case 'int':
-                return '<input class="form-control" type="number" name="' . $inputName . '" value="' . request()->input('query.' . $this->column->name) . '">';
+                if (!array_key_exists('type', $this->attrs))
+                    $this->attrs['type'] = 'number';
+                return '<input ' . $this->getAttrs() . ' name="' . $inputName . '" value="' . request()->input('query.' . $this->column->name) . '">';
             case 'bool':
-                return '<input class="form-control" type="checkbox" name="' . $inputName . '" value="' . request()->input('query.' . $this->column->name) . '">';
+                if (!array_key_exists('type', $this->attrs))
+                    $this->attrs['type'] = 'checkbox';
+                return '<input ' . $this->getAttrs() . ' name="' . $inputName . '" value="' . request()->input('query.' . $this->column->name) . '">';
+            case 'choice':
+                $view = config('report.input_choice_view');
+                if (!$view)
+                    $view = 'Report::input.choice';
+                $options = $this->metodo;
+                return view($view, compact('inputName', 'inputValue', 'options'));
             case 'date':
             case 'datetime':
-                $inputValue = request()->input('query.' . $this->column->name);
                 if ($this->metodo == 'between') {
-                    return '<div class="input-daterange input-group datepicker">
-                            <input type="text" class="form-control" name="' . $inputName . '[start]" value="' . ($inputValue ? $inputValue['start'] : '') . '">
-                            <div class="input-group-append">
-                                <span class="input-group-text">
-                                    <i class="la la-ellipsis-h"></i>
-                                </span>
-                            </div>
-                            <input type="text" class="form-control" name="query[' . $this->column->name . '][end]" value="' . ($inputValue ? $inputValue['end'] : '') . '">
-                        </div>';
+                    $view = config('report.input_datetime_view');
+                    if (!$view)
+                        $view = 'Report::input.datetime';
+                    if (!$inputValue) {
+                        $inputValue = array();
+                        $inputValue['start'] = null;
+                        $inputValue['end'] = null;
+                    }
+                    return view($view, compact('inputName', 'inputValue'));
                 }
-                return '<input class="form-control" type="text" name="' . $inputName . '" value="' . request()->input('query.' . $this->column->name) . '">';
+                if (!array_key_exists('type', $this->attrs))
+                    $this->attrs['type'] = 'text';
+                return '<input ' . $this->getAttrs() . ' name="' . $inputName . '" value="' . request()->input('query.' . $this->column->name) . '">';
             default:
-                return '<input class="form-control" type="text" name="' . $inputName . '" value="' . request()->input('query.' . $this->column->name) . '">';
+                if (!array_key_exists('type', $this->attrs))
+                    $this->attrs['type'] = 'text';
+                return '<input ' . $this->getAttrs() . ' name="' . $inputName . '" value="' . request()->input('query.' . $this->column->name) . '">';
         }
     }
 
     /**
      * @param string $tipo Tipo de dado (int, string, datetime, etc)
-     * @param string $metodo Metodo de filtro (=,>=,<=,like,between, etc)
+     * @param string|array $metodo Metodo de filtro (=,>=,<=,like,between, etc) ou opcoes do choice
+     * @param string[] $attrs Atributos html do input de filtro
      */
-    public function set(string $tipo, string $metodo)
+    public function set(string $tipo, $metodo, $attrs = ['class' => 'form-control'])
     {
         $this->tipo = $tipo;
         $this->metodo = $metodo;
+        $this->attrs = $attrs;
     }
 
     public function getOrderByUrl($params)
     {
-        $params['order'][$this->column->name] = $this->order == 'asc' ? 'desc' : 'asc';
+        $params['order'][$this->column->name] = $this->order == 'desc' ? 'asc' : 'desc';
         return http_build_query($params);
+    }
+
+    /** Retorna os atributos html
+     * @return string
+     */
+    private function getAttrs()
+    {
+        $res = '';
+        foreach ($this->attrs as $key => $value)
+            $res .= $key . "='" . $value . "' ";
+        return $res;
     }
 }

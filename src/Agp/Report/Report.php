@@ -5,6 +5,7 @@ namespace Agp\Report;
 
 
 use Closure;
+use DateTime;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder;
@@ -198,9 +199,14 @@ class Report
     {
         $query = request()->get('query');
         if ($query) {
+            dump($query);
             foreach ($query as $key => $value) {
                 if ($value) {
                     $column = $this->getColumnByName($key);
+                    if ($column->filter->tipo == 'choice') {
+                        $builder = $builder->where(DB::raw($key), '=', $value);
+                        continue;
+                    }
                     switch ($column->filter->metodo) {
                         case '=':
                         case '>':
@@ -216,9 +222,14 @@ class Report
                             break;
                         case 'between':
                             if (array_key_exists('start', $value) && array_key_exists('end', $value) &&
-                                $value['start'] && $value['end'])
+                                $value['start'] && $value['end']) {
+                                $format = $column->filter->tipo == 'date' ? 'd/m/Y' : 'd/m/Y H:i:s';
+                                dump($value);
+                                $value['start'] = DateTime::createFromFormat($format, $value['start']);
+                                $value['end'] = DateTime::createFromFormat($format, $value['end']);
+                                dump($value);
                                 $builder = $builder->whereBetween(DB::raw($key), $value);
-                            else
+                            } else
                                 unset($query[$key]);
                             break;
                     }

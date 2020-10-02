@@ -56,7 +56,7 @@ class ReportColumn
 
     /**
      * @param string $tipo Tipo de dado (int, string, datetime, etc)
-     * @param string $metodo Metodo de filtro (=,>=,<=,like,between, etc)
+     * @param string|array $metodo Metodo de filtro (=,>=,<=,like,between, etc) ou opcoes do choice
      * @return ReportColumn
      */
     public function setFilter($tipo, $metodo)

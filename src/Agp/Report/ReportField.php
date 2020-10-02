@@ -20,7 +20,11 @@ class ReportField
      * @var array|mixed
      */
     public $attr;
-    /** Método a ser executado na renderização do campo
+    /** Método f($item) a ser executado no getFieldValue do campo
+     * @var \Closure
+     */
+    public $getAttribute = null;
+    /** Método f($item) a ser executado na renderização do campo
      * @var mixed|null
      */
     public $callback;
@@ -37,6 +41,24 @@ class ReportField
         $this->callback = array_key_exists('callback', $data) ? $data['callback'] : null;
     }
 
+    public function getFieldValue($item)
+    {
+        if ($item instanceof Model) {
+            $value = $item->getAttribute($this->column->name);
+        } else {
+            $aux = (array)$item;
+            if (array_key_exists($this->column->name, $aux))
+                $value = $aux[$this->column->name];
+            else
+                $value = '???';
+        }
+
+        $a = $this->getAttribute;
+        if ($a)
+            return $a($value);
+        return $value;
+    }
+
     /**
      * @param $item
      * @return mixed|string
@@ -47,12 +69,7 @@ class ReportField
             $f = $this->callback;
             return $f($item);
         }
-        if ($item instanceof Model)
-            return $item->getAttribute($this->column->name);
-        $aux = (array)$item;
-        if (array_key_exists($this->column->name, $aux))
-            return $aux[$this->column->name];
-        return '???';
+        return $this->getFieldValue($item);
     }
 
     /** Retorna os atributos html

@@ -10,6 +10,7 @@
     <div class="card-body py-0" id="transacoes">
         <div class="collapse mb-5" id="collapseOpcoes">
             <div class="card card-body d-flex">
+                <span class="text-secondary">Filtros</span>
                 <div class="row d-flex flex-column">
                     <div class="form-group">
                         <form method="get">
