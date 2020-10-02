@@ -62,11 +62,13 @@ class Report
     {
         if ($data instanceof ReportColumn) {
             $this->columns->add($data);
+            $data->alias = pow($this->columns->count(), 3);
             return $data;
         }
         if (is_string($data)) {
             $column = new ReportColumn($data);
             $this->columns->add($column);
+            $column->alias = pow($this->columns->count(), 3);
             return $column;
         }
         throw new \Exception('Invalid type');
@@ -106,6 +108,18 @@ class Report
             if ($item->name == $name)
                 return $item;
         throw new \Exception('Unknow column ' . $name);
+    }
+
+    /** Retorna a coluna identificada pelo alias
+     * @param $alias
+     * @return ReportColumn|null
+     */
+    public function getColumnByAlias($alias)
+    {
+        foreach ($this->columns as $item)
+            if ($item->alias == $alias)
+                return $item;
+        throw new \Exception('Unknow column ' . $alias);
     }
 
     /** Cria colunas com base no atributo fillables da entidade
@@ -199,12 +213,12 @@ class Report
     {
         $query = request()->get('query');
         if ($query) {
-            dump($query);
             foreach ($query as $key => $value) {
                 if ($value) {
-                    $column = $this->getColumnByName($key);
+                    $column = $this->getColumnByAlias($key);
+                    $column->filter->data = $value;
                     if ($column->filter->tipo == 'choice') {
-                        $builder = $builder->where(DB::raw($key), '=', $value);
+                        $builder = $builder->where(DB::raw($column->name), '=', $value);
                         continue;
                     }
                     switch ($column->filter->metodo) {
@@ -215,20 +229,18 @@ class Report
                         case '>=':
                         case '!=':
                         case '<>':
-                            $builder = $builder->where(DB::raw($key), $column->filter->metodo, $value);
+                            $builder = $builder->where(DB::raw($column->name), $column->filter->metodo, $value);
                             break;
                         case 'like':
-                            $builder = $builder->where(DB::raw($key), 'LIKE', '%' . $value . '%');
+                            $builder = $builder->where(DB::raw($column->name), 'LIKE', '%' . $value . '%');
                             break;
                         case 'between':
                             if (array_key_exists('start', $value) && array_key_exists('end', $value) &&
                                 $value['start'] && $value['end']) {
                                 $format = $column->filter->tipo == 'date' ? 'd/m/Y' : 'd/m/Y H:i:s';
-                                dump($value);
                                 $value['start'] = DateTime::createFromFormat($format, $value['start']);
                                 $value['end'] = DateTime::createFromFormat($format, $value['end']);
-                                dump($value);
-                                $builder = $builder->whereBetween(DB::raw($key), $value);
+                                $builder = $builder->whereBetween(DB::raw($column->name), $value);
                             } else
                                 unset($query[$key]);
                             break;
@@ -264,9 +276,9 @@ class Report
         if ($order) {
             foreach ($order as $key => $value) {
                 if ($value) {
-                    $column = $this->getColumnByName($key);
+                    $column = $this->getColumnByAlias($key);
                     $column->filter->order = $value;
-                    $builder = $builder->orderBy($key, $value);
+                    $builder = $builder->orderBy($column->name, $value);
                 } else
                     unset($order[$key]);
             }

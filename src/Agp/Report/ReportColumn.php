@@ -34,6 +34,10 @@ class ReportColumn
      * @var ReportField
      */
     public $field;
+    /**
+     * @var string
+     */
+    public $alias;
 
     /**
      * ReportColumn constructor. $data contém os atributos do objeto como name, title, desc, attr

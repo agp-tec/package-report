@@ -26,6 +26,10 @@ class ReportFilter
      * @var string[]
      */
     private $attrs;
+    /** Valor do filtro
+     * @var string
+     */
+    public $data;
 
     /**
      * ReportFilter constructor.
@@ -41,20 +45,20 @@ class ReportFilter
      */
     public function renderInput()
     {
-        $inputName = 'query[' . $this->column->name . ']';
+        $inputName = 'query[' . $this->column->alias . ']';
         $inputValues = request()->input();
         $inputValue = null;
-        if ($inputValues && array_key_exists('query', $inputValues) && is_array($inputValues['query']) && array_key_exists($this->column->name, $inputValues['query']))
-            $inputValue = $inputValues['query'][$this->column->name];
+        if ($inputValues && array_key_exists('query', $inputValues) && is_array($inputValues['query']) && array_key_exists($this->column->alias, $inputValues['query']))
+            $inputValue = $inputValues['query'][$this->column->alias];
         switch ($this->tipo) {
             case 'int':
                 if (!array_key_exists('type', $this->attrs))
                     $this->attrs['type'] = 'number';
-                return '<input ' . $this->getAttrs() . ' name="' . $inputName . '" value="' . request()->input('query.' . $this->column->name) . '">';
+                return '<input ' . $this->getAttrs() . ' name="' . $inputName . '" value="' . request()->input('query.' . $this->column->alias) . '">';
             case 'bool':
                 if (!array_key_exists('type', $this->attrs))
                     $this->attrs['type'] = 'checkbox';
-                return '<input ' . $this->getAttrs() . ' name="' . $inputName . '" value="' . request()->input('query.' . $this->column->name) . '">';
+                return '<input ' . $this->getAttrs() . ' name="' . $inputName . '" value="' . request()->input('query.' . $this->column->alias) . '">';
             case 'choice':
                 $view = config('report.input_choice_view');
                 if (!$view)
@@ -76,11 +80,11 @@ class ReportFilter
                 }
                 if (!array_key_exists('type', $this->attrs))
                     $this->attrs['type'] = 'text';
-                return '<input ' . $this->getAttrs() . ' name="' . $inputName . '" value="' . request()->input('query.' . $this->column->name) . '">';
+                return '<input ' . $this->getAttrs() . ' name="' . $inputName . '" value="' . request()->input('query.' . $this->column->alias) . '">';
             default:
                 if (!array_key_exists('type', $this->attrs))
                     $this->attrs['type'] = 'text';
-                return '<input ' . $this->getAttrs() . ' name="' . $inputName . '" value="' . request()->input('query.' . $this->column->name) . '">';
+                return '<input ' . $this->getAttrs() . ' name="' . $inputName . '" value="' . request()->input('query.' . $this->column->alias) . '">';
         }
     }
 
@@ -98,7 +102,7 @@ class ReportFilter
 
     public function getOrderByUrl($params)
     {
-        $params['order'][$this->column->name] = $this->order == 'desc' ? 'asc' : 'desc';
+        $params['order'][$this->column->alias] = $this->order == 'desc' ? 'asc' : 'desc';
         return http_build_query($params);
     }
 
