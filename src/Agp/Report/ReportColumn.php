@@ -14,6 +14,10 @@ class ReportColumn
      * @var
      */
     public $name;
+    /** Visibilidade da coluna
+     * @var bool
+     */
+    public $visible = true;
     /** Dados para filtro da coluna
      * @var ReportFilter
      */
@@ -51,6 +55,16 @@ class ReportColumn
     public function setTitle($title)
     {
         $this->header->title = $title;
+        return $this;
+    }
+
+    /**
+     * @param bool $visible
+     * @return ReportColumn
+     */
+    public function setVisible($visible)
+    {
+        $this->visible = $visible;
         return $this;
     }
 

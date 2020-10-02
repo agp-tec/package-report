@@ -15,6 +15,9 @@
                     <div class="form-group">
                         <form method="get">
                             @foreach($report->columns as $column)
+                                @if(!$column->visible)
+                                    @continue
+                                @endif
                                 @if($column->filter->tipo != '')
                                     <div class="form-group">
                                         {!! $column->header->title !!}
@@ -38,6 +41,9 @@
             <thead>
             <tr class="text-left text-uppercase">
                 @foreach($report->columns as $column)
+                    @if(!$column->visible)
+                        @continue
+                    @endif
                     <th {{ $column->header->getAttrs() }}>
                         <a href="?{{ $column->filter->getOrderByUrl($report->httpParams) }}">{{ $column->header->title }}</a>
                     </th>
@@ -48,6 +54,9 @@
             @foreach ($report->items as $item)
                 <tr>
                     @foreach($report->columns as $column)
+                        @if(!$column->visible)
+                            @continue
+                        @endif
                         <td {{ $column->field->getAttrs() }}>
                             {!! $column->field->renderField($item) !!}
                         </td>
@@ -61,6 +70,9 @@
                 <thead>
                 <tr>
                     @foreach($report->columns as $column)
+                        @if(!$column->visible)
+                            @continue
+                        @endif
                         <th>
                             @if($column->totalizador->metodo != '')
                                 {{ $column->totalizador->getValor() }}
