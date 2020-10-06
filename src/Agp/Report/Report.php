@@ -32,10 +32,12 @@ class Report
      * @var Closure|Builder
      */
     protected $queryBuilder;
+
     /** Nome do arquivo blade
      * @var string
      */
     private $view;
+
     /**
      * @var ReportExport
      */
@@ -261,7 +263,8 @@ class Report
     {
         $selects = array();
         foreach ($this->columns as $column)
-            $selects[] = $column->name . ' as ' . $column->name;
+            if ($column->field->getActions() == '')
+                $selects[] = $column->name . ' as ' . $column->name;
         return $builder->select($selects);
     }
 
@@ -286,4 +289,5 @@ class Report
         }
         return $builder;
     }
+
 }
