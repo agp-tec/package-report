@@ -73,6 +73,16 @@ class ReportColumn
     }
 
     /**
+     * @param string $actions
+     * @return ReportColumn
+     */
+    public function setActions($actions)
+    {
+        $this->field->setActions($actions);
+        return $this;
+    }
+
+    /**
      * @param string $tipo Tipo de dado (int, string, datetime, etc)
      * @param string|array $metodo Metodo de filtro (=,>=,<=,like,between, etc) ou opcoes do choice
      * @return ReportColumn

@@ -24,6 +24,10 @@ class ReportField
      * @var \Closure
      */
     public $getAttribute = null;
+    /** html com ações da linha
+     * @var string
+     */
+    private $actions;
     /** Método f($item) a ser executado na renderização do campo
      * @var mixed|null
      */
@@ -39,10 +43,13 @@ class ReportField
         $this->column = $column;
         $this->attr = array_key_exists('attr', $data) ? $data['attr'] : [];
         $this->callback = array_key_exists('callback', $data) ? $data['callback'] : null;
+        $this->actions = array_key_exists('callback', $data) ? $data['callback'] : '';
     }
 
     public function getFieldValue($item)
     {
+        if ($this->actions != '')
+            return $this->actions;
         if ($item instanceof Model) {
             $value = $item->getAttribute($this->column->name);
         } else {
@@ -81,5 +88,23 @@ class ReportField
         foreach ($this->attr as $key => $value)
             $res .= $key . "='" . $value . "' ";
         return $res;
+    }
+
+    /** Informa ações da coluna.
+     * @param string $actions html com acoes
+     * @return ReportField
+     */
+    public function setActions($actions)
+    {
+        $this->actions = $actions;
+        return $this;
+    }
+
+    /** html com ações da coluna.
+     * @return string
+     */
+    public function getActions()
+    {
+        return $this->actions;
     }
 }
