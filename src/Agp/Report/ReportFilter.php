@@ -113,7 +113,7 @@ class ReportFilter
     {
         $res = '';
         foreach ($this->attrs as $key => $value)
-            $res .= $key . "='" . $value . "' ";
+            $res .= $key . '="' . $value . '"';
         return $res;
     }
 }

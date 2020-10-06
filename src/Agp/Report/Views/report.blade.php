@@ -44,7 +44,7 @@
                     @if(!$column->visible)
                         @continue
                     @endif
-                    <th {{ $column->header->getAttrs() }}>
+                    <th {!! $column->header->getAttrs() !!}>
                         <a href="?{{ $column->filter->getOrderByUrl($report->httpParams) }}">{{ $column->header->title }}</a>
                     </th>
                 @endforeach

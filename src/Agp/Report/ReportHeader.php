@@ -35,7 +35,7 @@ class ReportHeader
     {
         $res = '';
         foreach ($this->attr as $key => $value)
-            $res .= $key . "='" . $value . "' ";
+            $res .= $key . '="' . $value . '"';
         return $res;
     }
 }
