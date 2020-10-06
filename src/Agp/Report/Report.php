@@ -263,7 +263,7 @@ class Report
     {
         $selects = array();
         foreach ($this->columns as $column)
-            if ($column->field->getActions() == '')
+            if ($column->field->getActions() == null)
                 $selects[] = $column->name . ' as ' . $column->name;
         return $builder->select($selects);
     }

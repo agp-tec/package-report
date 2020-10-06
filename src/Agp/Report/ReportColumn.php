@@ -3,6 +3,8 @@
 
 namespace Agp\Report;
 
+use Closure;
+
 /**
  * Class ReportColumn
  * Contem os atributos das colunas
@@ -73,7 +75,7 @@ class ReportColumn
     }
 
     /**
-     * @param string $actions
+     * @param string|Closure $actions
      * @return ReportColumn
      */
     public function setActions($actions)

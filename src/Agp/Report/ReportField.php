@@ -4,6 +4,7 @@
 namespace Agp\Report;
 
 
+use Closure;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -25,7 +26,7 @@ class ReportField
      */
     public $getAttribute = null;
     /** html com ações da linha
-     * @var string
+     * @var string|Closure
      */
     private $actions;
     /** Método f($item) a ser executado na renderização do campo
@@ -43,13 +44,17 @@ class ReportField
         $this->column = $column;
         $this->attr = array_key_exists('attr', $data) ? $data['attr'] : [];
         $this->callback = array_key_exists('callback', $data) ? $data['callback'] : null;
-        $this->actions = array_key_exists('callback', $data) ? $data['callback'] : '';
+        $this->actions = array_key_exists('callback', $data) ? $data['callback'] : null;
     }
 
     public function getFieldValue($item)
     {
-        if ($this->actions != '')
-            return $this->actions;
+        if ($this->actions != null) {
+            if (is_string($this->actions))
+                return $this->actions;
+            $f = $this->actions;
+            return $f($item);
+        }
         if ($item instanceof Model) {
             $value = $item->getAttribute($this->column->name);
         } else {
@@ -91,7 +96,7 @@ class ReportField
     }
 
     /** Informa ações da coluna.
-     * @param string $actions html com acoes
+     * @param string|Closure $actions html com acoes
      * @return ReportField
      */
     public function setActions($actions)
@@ -101,7 +106,7 @@ class ReportField
     }
 
     /** html com ações da coluna.
-     * @return string
+     * @return string|Closure
      */
     public function getActions()
     {
