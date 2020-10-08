@@ -36,12 +36,12 @@ class Report
     /** Nome do arquivo blade
      * @var string
      */
-    private $view;
+    protected $view;
 
     /**
      * @var ReportExport
      */
-    private $reportExport;
+    protected $reportExport;
 
     /**
      * Report constructor.
