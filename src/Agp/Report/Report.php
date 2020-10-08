@@ -166,7 +166,7 @@ class Report
     /**
      * Limpa os totalizadores
      */
-    private function clearTotalizadores()
+    protected function clearTotalizadores()
     {
         foreach ($this->columns as $column)
             if ($column->totalizador)
@@ -211,7 +211,7 @@ class Report
      * @return Builder
      * @throws \Exception
      */
-    private function montaWhere($builder)
+    protected function montaWhere($builder)
     {
         $query = request()->get('query');
         if ($query) {
@@ -259,12 +259,13 @@ class Report
      * @param Builder $builder
      * @return Builder
      */
-    private function montaSelects($builder)
+    protected function montaSelects($builder)
     {
         $selects = array();
         foreach ($this->columns as $column)
-            if ($column->field->getActions() == null)
-                $selects[] = $column->name . ' as ' . $column->name;
+            if ($column->field->getActions() == null) {
+                $selects[] = $column->raw ?: ($column->name . ' as ' . $column->name);
+            }
         return $builder->select($selects);
     }
 
@@ -273,7 +274,7 @@ class Report
      * @return Builder
      * @throws \Exception
      */
-    private function montaOrder($builder)
+    protected function montaOrder($builder)
     {
         $order = request()->get('order');
         if ($order) {

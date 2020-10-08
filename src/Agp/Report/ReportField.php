@@ -28,7 +28,7 @@ class ReportField
     /** html com ações da linha
      * @var string|Closure
      */
-    private $actions;
+    public $actions;
     /** Método f($item) a ser executado na renderização do campo
      * @var mixed|null
      */

@@ -40,6 +40,10 @@ class ReportColumn
      * @var string
      */
     public $alias;
+    /** Valor bruto do select (sum, count, date_format, etc). Caso utilize, precisa conter alias para nome da coluna. Ex: sum(valor) as soma
+     * @var string
+     */
+    public $raw;
 
     /**
      * ReportColumn constructor. $data contém os atributos do objeto como name, title, desc, attr
@@ -61,6 +65,16 @@ class ReportColumn
     public function setTitle($title)
     {
         $this->header->title = $title;
+        return $this;
+    }
+
+    /**
+     * @param string $raw Valor bruto do select (sum, count, date_format, etc)
+     * @return ReportColumn
+     */
+    public function setRaw($raw)
+    {
+        $this->raw = $raw;
         return $this;
     }
 
