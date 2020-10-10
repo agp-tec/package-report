@@ -46,6 +46,17 @@ class MakeCommand extends Command
         if ($model == '')
             return $this->error('Nome da model entity é inválido.');
 
+        $columns = '';
+        $class = '\App\Model\Entity\\' . $model;
+        if (class_exists($class)) {
+            $object = new $class();
+            if (method_exists($object, 'getFillable')) {
+                foreach ($object->getFillable() as $item) {
+                    $columns .= '        $this->addColumn("' . $item . '")->setTitle("' . strtoupper($item) . '");' . chr(10);
+                }
+            }
+        }
+
         $contents =
             '<?php
 
@@ -66,12 +77,7 @@ class ' . $model . 'Report extends \Agp\Report\Report
         $this->queryBuilder = function () {
             return ' . $model . '::query();
         };
-
-        //Faz o bind dos campos da entidade (fillable)
-        $this->setModel(new ' . $model . '());
-
-        //$this->getColumnByName(\'id\')->filter->set(\'int\',\'=\');
-        //$this->getColumnByName(\'id\')->totalizador = new ReportTotalizador(\'count\');
+' . $columns . '
     }
 }';
         if ($this->confirm('Do you wish to create ' . $model . 'Report file?')) {

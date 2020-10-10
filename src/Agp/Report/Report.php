@@ -262,10 +262,26 @@ class Report
     protected function montaSelects($builder)
     {
         $selects = array();
-        foreach ($this->columns as $column)
-            if ($column->field->getActions() == null) {
-                $selects[] = $column->raw ?: ($column->name . ' as ' . $column->name);
+        if ($builder->getQuery()->joins) {
+            //Possui joins
+            if ($builder->getModel()) {
+                $selects[] = $builder->getModel()->getTable() . '.' . $builder->getModel()->getKeyName() . ' as ' . $builder->getModel()->getKeyName();
+                foreach ($builder->getModel()->getFillable() as $field) {
+                    $selects[] = $builder->getModel()->getTable() . '.' . $field . ' as ' . $field;
+                }
             }
+            foreach ($builder->getQuery()->joins as $join) {
+                foreach ($this->columns as $column) {
+                    if (str_contains($column->name, $join->table . '.')) {
+                        $selects[] =
+                            //$column->raw ?:
+                            ($column->name . ' as ' . $column->name);
+                    }
+                }
+            }
+        } else {
+            //Possui apenas 1 tabela ou possui with
+        }
         return $builder->select($selects);
     }
 
