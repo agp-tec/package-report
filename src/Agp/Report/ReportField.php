@@ -56,7 +56,29 @@ class ReportField
             return $f($item);
         }
         if ($item instanceof Model) {
-            $value = $item->getAttribute($this->column->name);
+            //Verifica se entidade possui os membros de relacao
+            $data = explode('.', $this->column->name);
+            if (is_array($data) && (count($data) > 1) && ($item->{$data[0]} instanceof Model)) {
+                //Procura o relacionamento através da sintaxe: pessoa.cidade.pais.nome
+                //  $item->pessoa
+                //      $pessoa->cidade
+                //          $cidade->pais
+                //              return $pais->nome
+                $r = $item->{$data[0]};
+                $i = 0;
+                while ($r) {
+                    $i++;
+                    if ($i < count($data)) {
+                        if ($r->{$data[$i]} instanceof Model) {
+                            $r = $r->{$data[$i]};
+                            continue;
+                        }
+                    }
+                    break;
+                }
+                $value = $r->{$data[$i]};
+            } else
+                $value = $item->getAttribute($this->column->name);
         } else {
             $aux = (array)$item;
             if (array_key_exists($this->column->name, $aux))
