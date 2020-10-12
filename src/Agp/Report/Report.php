@@ -284,7 +284,9 @@ class Report
         } else {
             //Possui apenas 1 tabela ou possui with
         }
-        return $builder->select($selects);
+        if (count($selects) > 0)
+            return $builder->select($selects);
+        return $builder;
     }
 
     /**
