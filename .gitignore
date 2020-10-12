@@ -1,3 +1,9 @@
 /vendor/
 /.idea/.gitignore
 /composer.lock
+/.idea/codeStyles/codeStyleConfig.xml
+/.idea/modules.xml
+/.idea/package-report.iml
+/.idea/php.xml
+/.idea/vcs.xml
+/.idea/workspace.xml

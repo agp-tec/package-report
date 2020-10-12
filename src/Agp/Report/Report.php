@@ -121,7 +121,9 @@ class Report
         foreach ($this->columns as $item)
             if ($item->alias == $alias)
                 return $item;
-        throw new \Exception('Unknow column ' . $alias);
+
+        //Tenta pegar coluna pelo nome, se não achou pelo alias
+        return $this->getColumnByName($alias);
     }
 
     /** Cria colunas com base no atributo fillables da entidade
