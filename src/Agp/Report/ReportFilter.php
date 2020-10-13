@@ -52,14 +52,23 @@ class ReportFilter
             $inputValue = $inputValues['query'][$this->column->alias];
         switch ($this->tipo) {
             case 'int':
+            case 'number':
+            case 'integer':
                 if (!array_key_exists('type', $this->attrs))
                     $this->attrs['type'] = 'number';
                 return '<input ' . $this->getAttrs() . ' name="' . $inputName . '" value="' . request()->input('query.' . $this->column->alias) . '">';
             case 'bool':
+            case 'checkbox':
+            case 'switch':
+                $view = config('report.input_checkbox_view');
+                if (!$view)
+                    $view = 'Report::input.checkbox';
                 if (!array_key_exists('type', $this->attrs))
                     $this->attrs['type'] = 'checkbox';
-                return '<input ' . $this->getAttrs() . ' name="' . $inputName . '" value="' . request()->input('query.' . $this->column->alias) . '">';
+                $attrs = $this->getAttrs();
+                return view($view, compact('inputName', 'inputValue', 'attrs'));
             case 'choice':
+            case 'select':
                 $view = config('report.input_choice_view');
                 if (!$view)
                     $view = 'Report::input.choice';
