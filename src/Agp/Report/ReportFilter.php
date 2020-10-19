@@ -61,12 +61,13 @@ class ReportFilter
             case 'checkbox':
             case 'switch':
                 $view = config('report.input_checkbox_view');
-                if (!$view)
-                    $view = 'Report::input.checkbox';
-                if (!array_key_exists('type', $this->attrs))
-                    $this->attrs['type'] = 'checkbox';
-                $attrs = $this->getAttrs();
-                return view($view, compact('inputName', 'inputValue', 'attrs'));
+            if (!$view)
+                $view = 'Report::input.checkbox';
+            if (!array_key_exists('type', $this->attrs))
+                $this->attrs['type'] = 'checkbox';
+            $attrs = $this->getAttrs();
+            $inputTitle = $this->column->header->title;
+            return view($view, compact('inputTitle', 'inputName', 'inputValue', 'attrs'));
             case 'choice':
             case 'select':
                 $view = config('report.input_choice_view');

@@ -108,4 +108,44 @@ class ReportColumn
         $this->filter->set($tipo, $metodo);
         return $this;
     }
+
+    /**
+     * @param Closure $closure
+     * @return ReportColumn
+     */
+    public function setFieldCallback(Closure $closure)
+    {
+        $this->field->callback = $closure;
+        return $this;
+    }
+
+    /**
+     * @param Closure $closure
+     * @return ReportColumn
+     */
+    public function setFieldAttribute(Closure $closure)
+    {
+        $this->field->getAttribute = $closure;
+        return $this;
+    }
+
+    /**
+     * @param array $attrs
+     * @return ReportColumn
+     */
+    public function setHeaderAttrs($attrs)
+    {
+        $this->header->attr = $attrs;
+        return $this;
+    }
+
+    /**
+     * @param array $attrs
+     * @return ReportColumn
+     */
+    public function setFieldAttrs($attrs)
+    {
+        $this->field->attr = $attrs;
+        return $this;
+    }
 }

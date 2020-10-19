@@ -311,4 +311,13 @@ class Report
         return $builder;
     }
 
+    /**
+     * @param array $formats
+     * @return Report
+     */
+    public function setExcelColumnFormats($formats)
+    {
+        $this->reportExport->setColumnFormats($formats);
+        return $this;
+    }
 }
