@@ -218,7 +218,7 @@ class Report
         $query = request()->get('query');
         if ($query) {
             foreach ($query as $key => $value) {
-                if ($value) {
+                if ($value != null) {
                     $column = $this->getColumnByAlias($key);
                     $column->filter->data = $value;
                     if ($column->filter->tipo == 'choice') {
