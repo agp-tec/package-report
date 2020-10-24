@@ -32,6 +32,11 @@ class Report
      * @var Closure|Builder
      */
     protected $queryBuilder;
+    /** Metodo que executa a busca generica $f($builder, $genericSearch)
+     * @return Builder
+     * @var Closure|Builder
+     */
+    protected $queryGenericSearch;
 
     /** Nome do arquivo blade
      * @var string
@@ -215,6 +220,13 @@ class Report
      */
     protected function montaWhere($builder)
     {
+        $genericSearch = request()->get('genericSearch');
+        if ($genericSearch) {
+            $this->httpParams['genericSearch'] = $genericSearch;
+            $f = $this->queryGenericSearch;
+            if ($f)
+                return $f($builder, $genericSearch);
+        }
         $query = request()->get('query');
         if ($query) {
             foreach ($query as $key => $value) {
