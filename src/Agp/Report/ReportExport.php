@@ -59,7 +59,7 @@ class ReportExport implements FromArray, WithHeadings, WithColumnFormatting
     {
         $headers = [];
         foreach ($this->report->columns as $column) {
-            $headers[] = $column->header->title;
+            $headers[] = $column->header->title == '' ? 'Coluna sem nome' : $column->header->title;
         }
         return $headers;
     }
