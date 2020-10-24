@@ -21,8 +21,8 @@ class ReportField
      * @var array|mixed
      */
     public $attr;
-    /** Método f($item) a ser executado no getFieldValue do campo
-     * @var \Closure
+    /** Método f($value, $item) a ser executado no getFieldValue do campo
+     * @var Closure
      */
     public $getAttribute = null;
     /** html com ações da linha
@@ -89,7 +89,7 @@ class ReportField
 
         $a = $this->getAttribute;
         if ($a)
-            return $a($value);
+            return $a($value, $item);
         return $value;
     }
 
