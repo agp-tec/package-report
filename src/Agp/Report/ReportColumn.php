@@ -95,6 +95,7 @@ class ReportColumn
     public function setActions($actions)
     {
         $this->field->setActions($actions);
+        $this->header->setIsAction(true);
         return $this;
     }
 

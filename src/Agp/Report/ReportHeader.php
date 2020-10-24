@@ -22,10 +22,31 @@ class ReportHeader
      * @var ReportColumn
      */
     private $column;
+    /** Define se coluna é action. Não é exportado para excel se true
+     * @var bool
+     */
+    private $isAction;
+
+    /**
+     * @param bool $isAction
+     */
+    public function setIsAction(bool $isAction): void
+    {
+        $this->isAction = $isAction;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isAction(): bool
+    {
+        return $this->isAction;
+    }
 
     public function __construct($column)
     {
         $this->column = $column;
+        $this->isAction = false;
     }
 
     /** Retorna os atributos html
