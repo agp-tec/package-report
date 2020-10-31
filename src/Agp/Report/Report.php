@@ -288,8 +288,8 @@ class Report
                 foreach ($this->columns as $column) {
                     if (str_contains($column->name, $join->table . '.')) {
                         $selects[] =
-                            //$column->raw ?:
-                            ($column->name . ' as ' . $column->name);
+                            $column->raw ? $column->raw :
+                                ($column->name . ' as ' . $column->name);
                     }
                 }
             }
