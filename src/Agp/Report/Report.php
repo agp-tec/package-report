@@ -281,7 +281,16 @@ class Report
             if ($builder->getModel()) {
                 $selects[] = $builder->getModel()->getTable() . '.' . $builder->getModel()->getKeyName() . ' as ' . $builder->getModel()->getKeyName();
                 foreach ($builder->getModel()->getFillable() as $field) {
-                    $selects[] = $builder->getModel()->getTable() . '.' . $field . ' as ' . $field;
+                    $aux = false;
+                    foreach ($this->columns as $column) {
+                        if (($column->name == $field) && ($column->raw != '')) {
+                            $selects[] = $column->raw;
+                            $aux = true;
+                            break;
+                        }
+                    }
+                    if (!$aux)
+                        $selects[] = $builder->getModel()->getTable() . '.' . $field . ' as ' . $field;
                 }
             }
             foreach ($builder->getQuery()->joins as $join) {
