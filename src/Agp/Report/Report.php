@@ -305,6 +305,12 @@ class Report
         } else {
             //Possui apenas 1 tabela ou possui with
         }
+
+        //Adiciona colunas raw que não tenham sido adicionados anteriormente
+        foreach ($this->columns as $column)
+            if (($column->raw != '') && (!in_array($column->raw, $selects)))
+                $selects[] = $column->raw;
+
         if (count($selects) > 0)
             return $builder->select($selects);
         return $builder;
