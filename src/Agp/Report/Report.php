@@ -101,7 +101,7 @@ class Report
         if ($export)
             $this->items = $builder->get();
         else
-            $this->items = $builder->paginate(10)->appends($this->httpParams);
+            $this->items = $builder->paginate(request()->get('per_page', 10))->appends($this->httpParams);
         return $this->items;
     }
 
