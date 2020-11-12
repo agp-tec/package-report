@@ -278,7 +278,6 @@ class Report
             }
             $this->httpParams['query'] = $query;
         }
-        dump($builder->getBindings());
         return $builder;
     }
 
