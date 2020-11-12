@@ -262,7 +262,7 @@ class Report
                                 $value['start'] && $value['end']) {
                                 if ($column->filter->tipo == 'date') {
                                     $value['start'] = DateTime::createFromFormat('d/m/Y', $value['start'])->setTime(0, 0, 0, 0);
-                                    $value['end'] = DateTime::createFromFormat('d/m/Y', $value['end'])->setTime(0, 0, 0, 0);
+                                    $value['end'] = DateTime::createFromFormat('d/m/Y', $value['end'])->setTime(23, 59, 59, 999);
                                     $builder = $builder->whereBetween(DB::raw($column->name), $value);
                                 } else {
                                     $value['start'] = DateTime::createFromFormat('d/m/Y H:i:s', $value['start']);
