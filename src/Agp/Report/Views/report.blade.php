@@ -12,15 +12,19 @@
             @endforeach
         </tr>
         </thead>
+        <tbody>
         @if($report->items->count() == 0)
-            <div class="row d-flex">
-                <div class="col-md-12">
-                    Nenhum registro
-                    encontrado {{ \App\Helper\Theme\Metronic::getSVG('media/svg/icons/Weather/Wind.svg','svg-icon-warning svg-icon-lg-4x') }}
-                </div>
-            </div>
+            <tr>
+                <td colspan="{{ $report->columns->count() }}">
+                    <div class="row d-flex">
+                        <div class="col-md-12">
+                    <span class="text-warning">Nenhum registro
+                        encontrado {{ \App\Helper\Theme\Metronic::getSVG('media/svg/icons/Weather/Wind.svg','svg-icon-warning svg-icon-lg-4x') }}</span>
+                        </div>
+                    </div>
+                </td>
+            </tr>
         @else
-            <tbody>
             @foreach ($report->items as $item)
                 <tr>
                     @foreach($report->columns as $column)
@@ -33,17 +37,13 @@
                     @endforeach
                 </tr>
             @endforeach
-            @endif
-            </tbody>
+        @endif
+        </tbody>
     </table>
     @if(!isset($report->notDownload))
         <div class="row d-flex justify-content-end mt-5">
             <div class="col-2 text-right">
-                <form method="get">
-                    <input class="form-control" type="hidden" name="export" value="1">
-                    <button class="btn btn-success font-weight-bolder font-size-sm" type="submit">Download
-                    </button>
-                </form>
+                <a href="?{{ $report->getDownloadLink() }}" class="btn btn-success font-weight-bolder font-size-sm">Download</a>
             </div>
         </div>
     @endif

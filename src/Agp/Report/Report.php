@@ -61,6 +61,13 @@ class Report
         $this->queryBuilder = null;
     }
 
+    public function getDownloadLink()
+    {
+        $query = $this->httpParams;
+        $query['export'] = '1';
+        return http_build_query($query);
+    }
+
     /** Adiciona uma coluna
      * @param ReportColumn|string $data
      * @return ReportColumn
@@ -253,10 +260,15 @@ class Report
                         case 'between':
                             if (array_key_exists('start', $value) && array_key_exists('end', $value) &&
                                 $value['start'] && $value['end']) {
-                                $format = $column->filter->tipo == 'date' ? 'd/m/Y' : 'd/m/Y H:i:s';
-                                $value['start'] = DateTime::createFromFormat($format, $value['start']);
-                                $value['end'] = DateTime::createFromFormat($format, $value['end']);
-                                $builder = $builder->whereBetween(DB::raw($column->name), $value);
+                                if ($column->filter->tipo == 'date') {
+                                    $value['start'] = DateTime::createFromFormat('d/m/Y', $value['start'])->setTime(0, 0, 0, 0);
+                                    $value['end'] = DateTime::createFromFormat('d/m/Y', $value['end'])->setTime(0, 0, 0, 0);
+                                    $builder = $builder->whereBetween(DB::raw($column->name), $value);
+                                } else {
+                                    $value['start'] = DateTime::createFromFormat('d/m/Y H:i:s', $value['start']);
+                                    $value['end'] = DateTime::createFromFormat('d/m/Y H:i:s', $value['end']);
+                                    $builder = $builder->whereBetween(DB::raw($column->name), $value);
+                                }
                             } else
                                 unset($query[$key]);
                             break;
@@ -266,6 +278,7 @@ class Report
             }
             $this->httpParams['query'] = $query;
         }
+        dump($builder->getBindings());
         return $builder;
     }
 
