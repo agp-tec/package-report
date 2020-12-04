@@ -40,6 +40,10 @@ class ReportColumn
      * @var string
      */
     public $alias;
+    /**
+     * @var string
+     */
+    public $orderby;
     /** Valor bruto do select (sum, count, date_format, etc). Caso utilize, precisa conter alias para nome da coluna. Ex: sum(valor) as soma
      * @var string
      */
@@ -65,6 +69,16 @@ class ReportColumn
     public function setTitle($title)
     {
         $this->header->title = $title;
+        return $this;
+    }
+
+    /**
+     * @param string $asc_desc
+     * @return ReportColumn
+     */
+    public function setDefaultOrderBy($asc_desc)
+    {
+        $this->orderby = $asc_desc;
         return $this;
     }
 

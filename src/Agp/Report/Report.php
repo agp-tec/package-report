@@ -335,7 +335,12 @@ class Report
      */
     protected function montaOrder($builder)
     {
+        $httpParam = true;
         $order = request()->get('order');
+        if (!$order) {
+            $order = $this->getDefaultOrder();
+            $httpParam = false;
+        }
         if ($order) {
             foreach ($order as $key => $value) {
                 if ($value) {
@@ -345,9 +350,28 @@ class Report
                 } else
                     unset($order[$key]);
             }
-            $this->httpParams['order'] = $order;
+            if ($httpParam)
+                $this->httpParams['order'] = $order;
         }
         return $builder;
+    }
+
+    /** Retorna array com default order by
+     * @return false|array
+     */
+    public function getDefaultOrder()
+    {
+        $res = array();
+        foreach ($this->columns as $column) {
+            if (strtoupper($column->orderby) == 'ASC') {
+                $res[$column->alias] = 'ASC';
+            } elseif (strtoupper($column->orderby) == 'DESC') {
+                $res[$column->alias] = 'DESC';
+            }
+        }
+        if (count($res) > 0)
+            return $res;
+        return false;
     }
 
     /**
