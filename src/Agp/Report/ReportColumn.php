@@ -163,4 +163,19 @@ class ReportColumn
         $this->field->attr = $attrs;
         return $this;
     }
+
+    /**
+     * Monta parametros GET de filtro do relatorio
+     *
+     * @param string|array $queryValue Valor do filtro da coluna
+     * @param string $prefix Prefixo para adicionar ao inicio da query
+     * @param bool $full Indica se deve adicionar chave inicial "query"
+     * @return string Parametros GET
+     */
+    public function getHttpQuery($queryValue, $prefix = '?', $full = true)
+    {
+        if ($full)
+            return $prefix . http_build_query(["query" => [$this->alias => $queryValue]]);
+        return http_build_query([$this->alias => $queryValue]);
+    }
 }

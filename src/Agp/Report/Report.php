@@ -6,6 +6,7 @@ namespace Agp\Report;
 
 use Closure;
 use DateTime;
+use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder;
@@ -85,7 +86,7 @@ class Report
             $column->alias = pow($this->columns->count(), 3);
             return $column;
         }
-        throw new \Exception('Invalid type');
+        throw new Exception('Invalid type');
     }
 
     /** Executa query do relatorio
@@ -115,18 +116,20 @@ class Report
     /** Retorna a coluna identificada pelo nome
      * @param $name
      * @return ReportColumn|null
+     * @throws Exception
      */
     public function getColumnByName($name)
     {
         foreach ($this->columns as $item)
             if ($item->name == $name)
                 return $item;
-        throw new \Exception('Unknow column ' . $name);
+        throw new Exception('Unknow column ' . $name);
     }
 
     /** Retorna a coluna identificada pelo alias
      * @param $alias
      * @return ReportColumn|null
+     * @throws Exception
      */
     public function getColumnByAlias($alias)
     {
@@ -159,12 +162,12 @@ class Report
 
     /**
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
-     * @throws \Exception
+     * @throws Exception
      */
     public function build()
     {
         if (!$this->queryBuilder)
-            throw new \Exception('Method queryBuilder not implemented.');
+            throw new Exception('Method queryBuilder not implemented.');
 
         $this->clearTotalizadores();
 
@@ -223,7 +226,7 @@ class Report
     /**
      * @param Builder $builder
      * @return Builder
-     * @throws \Exception
+     * @throws Exception
      */
     protected function montaWhere($builder)
     {
@@ -331,7 +334,7 @@ class Report
     /**
      * @param Builder $builder
      * @return Builder
-     * @throws \Exception
+     * @throws Exception
      */
     protected function montaOrder($builder)
     {
