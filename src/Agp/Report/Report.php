@@ -379,6 +379,6 @@ class Report
 
     public function setExcelColumnFormats($formats)
     {
-        throw new \Exception('Metodo extindo. Use \$this->addColumn(\"...\")->setExcelColumnFormat(...)');
+        throw new \Exception('Metodo extinto. Use \$this->addColumn(\"...\")->setExcelColumnFormat(...)');
     }
 }
