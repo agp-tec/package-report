@@ -178,4 +178,14 @@ class ReportColumn
             return $prefix . http_build_query(["query" => [$this->alias => $queryValue]]);
         return http_build_query([$this->alias => $queryValue]);
     }
+
+    /** Indica o formato dos dados da coluna quando exportado para excel
+     * @param string $format
+     * @return ReportColumn
+     */
+    public function setExcelColumnFormat($format)
+    {
+        $this->header->excelColumnFormat = $format;
+        return $this;
+    }
 }

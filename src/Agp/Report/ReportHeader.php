@@ -14,6 +14,10 @@ class ReportHeader
      * @var string
      */
     public $desc;
+    /** Tipo da coluna em arquivo Excel
+     * @var string
+     */
+    public $excelColumnFormat;
     /** Atributos html da coluna header
      * @var array
      */

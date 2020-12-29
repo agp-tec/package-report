@@ -22,30 +22,24 @@ class ReportExport implements FromArray, WithHeadings, WithColumnFormatting
      * @var string
      */
     private $file;
-    /**
-     * @var array
-     */
-    private $columnFormats;
 
-    /**
-     * @return array
+    /** Retorna a coluna no modo Excel (A, B, AB, AC, AD...)
+     * @return string
      */
-    public function getColumnFormats()
+    private function getNameFromNumber($num)
     {
-        return $this->columnFormats;
-    }
-
-    /**
-     * @param array $columnFormats
-     */
-    public function setColumnFormats(array $columnFormats)
-    {
-        $this->columnFormats = $columnFormats;
+        $numeric = $num % 26;
+        $letter = chr(65 + $numeric);
+        $num2 = intval($num / 26);
+        if ($num2 > 0) {
+            return $this->getNameFromNumber($num2 - 1) . $letter;
+        } else {
+            return $letter;
+        }
     }
 
     public function __construct(Report $report)
     {
-        $this->columnFormats = [];
         $this->report = $report;
         $this->file = 'Report_' . date_create()->format('d-m-y_h:i:s') . '.xlsx';
     }
@@ -67,7 +61,12 @@ class ReportExport implements FromArray, WithHeadings, WithColumnFormatting
 
     public function columnFormats(): array
     {
-        return $this->columnFormats;
+        $columns = array();
+        foreach ($this->report->columns as $key => $column) {
+            if ($column->header->excelColumnFormat)
+                $columns[$this->getNameFromNumber($key)] = $column->header->excelColumnFormat;
+        }
+        return $columns;
     }
 
     public function array(): array

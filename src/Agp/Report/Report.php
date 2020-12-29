@@ -377,13 +377,8 @@ class Report
         return false;
     }
 
-    /**
-     * @param array $formats
-     * @return Report
-     */
     public function setExcelColumnFormats($formats)
     {
-        $this->reportExport->setColumnFormats($formats);
-        return $this;
+        throw new \Exception('Metodo extindo. Use \$this->addColumn(\"...\")->setExcelColumnFormat(...)');
     }
 }
