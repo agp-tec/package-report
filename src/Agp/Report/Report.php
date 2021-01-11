@@ -180,6 +180,20 @@ class Report
         return $this->view();
     }
 
+    /** Retorna resultado da query para retorno via API
+     * @return Builder|Paginator|null
+     * @throws Exception
+     */
+    public function buildForAPI()
+    {
+        if (!$this->queryBuilder)
+            throw new Exception('Method queryBuilder not implemented.');
+
+        $this->clearTotalizadores();
+
+        return $this->executaQuery();
+    }
+
     /**
      * Limpa os totalizadores
      */
