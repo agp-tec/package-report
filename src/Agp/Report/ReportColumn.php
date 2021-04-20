@@ -48,13 +48,19 @@ class ReportColumn
      * @var string
      */
     public $raw;
+    /**
+     * @var Report
+     */
+    public $parent;
 
     /**
      * ReportColumn constructor. $data contém os atributos do objeto como name, title, desc, attr
-     * @param string $name
+     * @param Report $parent
+     * @param null $name
      */
-    public function __construct($name = null)
+    public function __construct($parent, $name = null)
     {
+        $this->parent = $parent;
         $this->header = new ReportHeader($this);
         $this->filter = new ReportFilter($this);
         $this->totalizador = new ReportTotalizador($this);

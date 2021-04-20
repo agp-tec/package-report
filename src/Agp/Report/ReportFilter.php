@@ -110,10 +110,13 @@ class ReportFilter
         $this->attrs = $attrs;
     }
 
-    public function getOrderByUrl($params)
+    public function getOrderByUrl()
     {
-        $params['order'][$this->column->alias] = $this->order == 'desc' ? 'asc' : 'desc';
-        return http_build_query($params);
+        $query = $this->column->parent->getRequestKey(null);
+        $query['order'][$this->column->alias] = $this->order == 'desc' ? 'asc' : 'desc';
+        return http_build_query([
+                $this->column->parent->getName() => $query,
+            ]) . '#' . $this->column->parent->getName();
     }
 
     /** Retorna os atributos html

@@ -41,7 +41,7 @@ class ReportExport implements FromArray, WithHeadings, WithColumnFormatting
     public function __construct(Report $report)
     {
         $this->report = $report;
-        $this->file = 'Report_' . date_create()->format('d-m-y_h:i:s') . '.xlsx';
+        $this->file = $this->report->getName() . '_' . date_create()->format('d-m-y_h:i:s') . '.xlsx';
     }
 
     public function doExport()

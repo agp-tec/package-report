@@ -7,7 +7,7 @@
                     @continue
                 @endif
                 <th {!! $column->header->getAttrs() !!}>
-                    <a href="?{{ $column->filter->getOrderByUrl($report->httpParams) }}">{{ $column->header->title }}</a>
+                    <a href="?{{ $column->filter->getOrderByUrl() }}">{{ $column->header->title }}</a>
                 </th>
             @endforeach
         </tr>

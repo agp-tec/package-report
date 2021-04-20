@@ -11,7 +11,9 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
 
 class Report
 {
@@ -24,10 +26,6 @@ class Report
      * @var LengthAwarePaginator
      */
     public $items;
-    /** Parametros GET de filtro e ordenacao
-     * @var array
-     */
-    public $httpParams;
     /** Metodo que executa o select
      * @return Builder
      * @var Closure|Builder
@@ -49,11 +47,24 @@ class Report
      */
     protected $reportExport;
 
+    /** Nome do report
+     * @var string
+     */
+    protected $name;
+
+    /** Contem os parametros da requisicao do report
+     * @var array|null
+     */
+    protected $request;
+
     /**
      * Report constructor.
+     * @param string $name Nome do report
      */
-    public function __construct()
+    public function __construct($name)
     {
+        $this->name = $name;
+        $this->request = request()->get($this->name);
         $this->view = config('report.view');
         if (!$this->view)
             $this->view = 'Report::report';
@@ -62,11 +73,58 @@ class Report
         $this->queryBuilder = null;
     }
 
+    /**
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /** Retorna a chave $key da requisicao
+     * @param string|null $key Chave
+     * @param string|array|null $defaultValue Valor caso inexistente
+     * @return string|array|null
+     */
+    public function getRequestKey($key, $defaultValue = null)
+    {
+        if (!$key)
+            return $this->request;
+        if (!$this->request)
+            return $defaultValue;
+        if (array_key_exists($key, $this->request))
+            return $this->request[$key];
+        return $defaultValue;
+    }
+
+    /** Adiciona ou atualiza $value da chave $key da requisicao
+     * @param string $key
+     * @param string|array $value
+     */
+    public function setRequestKey($key, $value)
+    {
+        $this->request[$key] = $value;
+    }
+
+    /**
+     * @return string
+     */
+    public function getInputGenericSearch()
+    {
+        return '<input class="form-control" type="text" name="' . $this->name . '[genericSearch]"
+                           value="' . $this->getRequestKey('genericSearch') . '" placeholder="Pesquisar...">';
+    }
+
+    /**
+     * @return string
+     */
     public function getDownloadLink()
     {
-        $query = $this->httpParams;
+        $query = $this->request;
         $query['export'] = '1';
-        return http_build_query($query);
+        return http_build_query([
+            $this->name => $query
+        ]);
     }
 
     /** Adiciona uma coluna
@@ -81,7 +139,7 @@ class Report
             return $data;
         }
         if (is_string($data)) {
-            $column = new ReportColumn($data);
+            $column = new ReportColumn($this, $data);
             $this->columns->add($column);
             $column->alias = pow($this->columns->count(), 3);
             return $column;
@@ -92,16 +150,16 @@ class Report
     /** Executa query do relatorio
      * @param Builder|null $builder
      * @param bool $export Indica se query deve ser paginada para web ou sem paginacao para export
+     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator|LengthAwarePaginator|\Illuminate\Support\Collection
+     * @throws Exception
      */
     public function executaQuery($builder = null, $export = false)
     {
         $query = $this->queryBuilder;
         $builder = $query();
-        if (request()->get('clear'))
+        if ($this->getRequestKey('clear'))
             request()->merge([
-                'clear' => null,
-                'query' => null,
-                'order' => null,
+                $this->name => null,
             ]);
         $builder = $this->montaSelects($builder);
         $builder = $this->montaWhere($builder);
@@ -109,7 +167,10 @@ class Report
         if ($export)
             $this->items = $builder->get();
         else
-            $this->items = $builder->paginate(request()->get('per_page', 10))->appends($this->httpParams);
+            $this->items = $builder
+                ->paginate($this->getRequestKey('per_page', 10))
+                ->appends([$this->name => $this->request])
+                ->fragment($this->name);
         return $this->items;
     }
 
@@ -148,7 +209,7 @@ class Report
     {
         if ($model instanceof Model) {
             foreach ($model->getFillable() as $item) {
-                $this->columns->add(new ReportColumn([
+                $this->columns->add(new ReportColumn($this, [
                     'name' => $model->getTable() . '.' . $item,
                     'title' => ucwords(str_replace('_', ' ', strtolower($item))),
                 ]));
@@ -161,7 +222,7 @@ class Report
     }
 
     /**
-     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|View
      * @throws Exception
      */
     public function build()
@@ -181,7 +242,7 @@ class Report
     }
 
     /** Retorna resultado da query para retorno via API
-     * @return Builder|Paginator|null
+     * @return Builder|\Illuminate\Support\Collection|null
      * @throws Exception
      */
     public function buildForAPI()
@@ -205,7 +266,7 @@ class Report
     }
 
     /**
-     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return View
      */
     protected function view()
     {
@@ -226,7 +287,7 @@ class Report
      */
     public function toExport()
     {
-        return (request()->query('export') != null);
+        return ($this->getRequestKey('export') != null);
     }
 
     /** Retorna resposta com arquivo para download
@@ -244,14 +305,12 @@ class Report
      */
     protected function montaWhere($builder)
     {
-        $genericSearch = request()->get('genericSearch');
-        if ($genericSearch) {
-            $this->httpParams['genericSearch'] = $genericSearch;
+        if ($this->getRequestKey('genericSearch')) {
             $f = $this->queryGenericSearch;
             if ($f)
-                return $f($builder, $genericSearch);
+                return $f($builder, $this->getRequestKey('genericSearch'));
         }
-        $query = request()->get('query');
+        $query = $this->getRequestKey('query');
         if ($query) {
             foreach ($query as $key => $value) {
                 if ($value != null) {
@@ -293,7 +352,7 @@ class Report
                 } else
                     unset($query[$key]);
             }
-            $this->httpParams['query'] = $query;
+            $this->setRequestKey('query', $query);
         }
         return $builder;
     }
@@ -353,7 +412,7 @@ class Report
     protected function montaOrder($builder)
     {
         $httpParam = true;
-        $order = request()->get('order');
+        $order = $this->getRequestKey('order');
         if (!$order) {
             $order = $this->getDefaultOrder();
             $httpParam = false;
@@ -368,7 +427,7 @@ class Report
                     unset($order[$key]);
             }
             if ($httpParam)
-                $this->httpParams['order'] = $order;
+                $this->setRequestKey('order', $order);
         }
         return $builder;
     }
