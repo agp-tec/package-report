@@ -61,7 +61,7 @@ class Report
      * Report constructor.
      * @param string $name Nome do report
      */
-    public function __construct($name)
+    public function __construct($name = 'ref')
     {
         $this->name = $name;
         $this->request = request()->get($this->name);
