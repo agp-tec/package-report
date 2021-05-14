@@ -61,10 +61,10 @@ class Report
      * Report constructor.
      * @param string $name Nome do report
      */
-    public function __construct($name = 'ref')
+    public function __construct($name = '')
     {
         $this->name = $name;
-        $this->request = request()->get($this->name);
+        $this->name == '' ? $this->request = request()->all() : $this->request = request()->get($this->name);
         $this->view = config('report.view');
         if (!$this->view)
             $this->view = 'Report::report';
