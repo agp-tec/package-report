@@ -299,6 +299,24 @@ class Report
     }
 
     /**
+     * @param $query
+     * @return array
+     */
+    protected function addDefaultFilter($query)
+    {
+        foreach ($this->columns as $column) {
+            if ($column->defaultFilter != null) {
+                if (!$query)
+                    $query = array();
+                if (array_key_exists($column->alias, $query))
+                    continue;
+                $query[$column->alias] = $column->defaultFilter;
+            }
+        }
+        return $query;
+    }
+
+    /**
      * @param Builder $builder
      * @return Builder
      * @throws Exception
@@ -311,6 +329,7 @@ class Report
                 return $f($builder, $this->getRequestKey('genericSearch'));
         }
         $query = $this->getRequestKey('query');
+        $query = $this->addDefaultFilter($query);
         if ($query) {
             foreach ($query as $key => $value) {
                 if ($value != null) {

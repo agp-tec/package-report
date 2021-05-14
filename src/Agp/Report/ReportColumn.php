@@ -44,6 +44,10 @@ class ReportColumn
      * @var string
      */
     public $orderby;
+    /**
+     * @var string
+     */
+    public $defaultFilter;
     /** Valor bruto do select (sum, count, date_format, etc). Caso utilize, precisa conter alias para nome da coluna. Ex: sum(valor) as soma
      * @var string
      */
@@ -61,6 +65,7 @@ class ReportColumn
     public function __construct($parent, $name = null)
     {
         $this->parent = $parent;
+        $this->defaultFilter = null;
         $this->header = new ReportHeader($this);
         $this->filter = new ReportFilter($this);
         $this->totalizador = new ReportTotalizador($this);
@@ -85,6 +90,16 @@ class ReportColumn
     public function setDefaultOrderBy($asc_desc)
     {
         $this->orderby = $asc_desc;
+        return $this;
+    }
+
+    /**
+     * @param string $value
+     * @return ReportColumn
+     */
+    public function setDefaultFilter($value)
+    {
+        $this->defaultFilter = $value;
         return $this;
     }
 
