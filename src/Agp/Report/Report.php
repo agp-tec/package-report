@@ -122,9 +122,11 @@ class Report
     {
         $query = $this->request;
         $query['export'] = '1';
-        return http_build_query([
-            $this->name => $query
-        ]);
+        if ($this->name != '')
+            return http_build_query([
+                $this->name => $query
+            ]);
+        return http_build_query($query);
     }
 
     /** Adiciona uma coluna
