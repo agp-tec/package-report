@@ -171,7 +171,7 @@ class Report
         else
             $this->items = $builder
                 ->paginate($this->getRequestKey('per_page', 10))
-                ->appends([$this->name => $this->request])
+                ->appends($this->name == '' ? $this->request : [$this->name => $this->request])
                 ->fragment($this->name);
         return $this->items;
     }
