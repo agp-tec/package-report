@@ -114,9 +114,11 @@ class ReportFilter
     {
         $query = $this->column->parent->getRequestKey(null);
         $query['order'][$this->column->alias] = $this->order == 'desc' ? 'asc' : 'desc';
-        return http_build_query([
-                $this->column->parent->getName() => $query,
-            ]) . '#' . $this->column->parent->getName();
+        if ($this->column->parent->getName())
+            return http_build_query([
+                    $this->column->parent->getName() => $query,
+                ]) . '#' . $this->column->parent->getName();
+        return http_build_query($query);
     }
 
     /** Retorna os atributos html
