@@ -229,18 +229,24 @@ class Report
      */
     public function build()
     {
-        if (!$this->queryBuilder)
-            throw new Exception('Method queryBuilder not implemented.');
+        try {
+            if (!$this->queryBuilder)
+                throw new Exception('Method queryBuilder not implemented.');
 
-        $this->clearTotalizadores();
+            $this->clearTotalizadores();
 
-        $this->executaQuery();
+            $this->executaQuery();
 
-        foreach ($this->items as $item)
-            foreach ($this->columns as $column)
-                $column->totalizador->append($item);
+            foreach ($this->items as $item)
+                foreach ($this->columns as $column)
+                    $column->totalizador->append($item);
 
-        return $this->view();
+            return $this->view();
+        } catch (\Throwable $exception) {
+            if (config('app.debug') === true)
+                throw $exception;
+            return '<p>Não foi possível recuperar listagem</p>';
+        }
     }
 
     /** Retorna resultado da query para retorno via API
